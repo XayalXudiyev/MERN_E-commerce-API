@@ -19,6 +19,15 @@ const allProducts = async (req, res, next) => {
   });
 };
 
+const adminProducts = async (req, res, next) => {
+  const products = await Product.find();
+
+  res.status(201).json({
+    success: true,
+    product,
+  });
+};
+
 const detailProduct = async (req, res, next) => {
   const product = await Product.findById(req.params.id);
 
@@ -138,11 +147,11 @@ const createReview = async (req, res, next) => {
   });
   product.rating = avg / product.reviews.length;
 
-  await product.save ({validateBeforeSave:false})
+  await product.save({ validateBeforeSave: false });
 
   res.status(200).json({
-    message:'yorum eklendi'
-  })
+    message: "yorum eklendi",
+  });
 };
 
 export {
@@ -152,4 +161,5 @@ export {
   deleteProduct,
   updateProduct,
   createReview,
+  adminProducts
 };
