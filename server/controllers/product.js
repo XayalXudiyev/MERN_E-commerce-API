@@ -1,17 +1,23 @@
-import Product from "../models/product";
-import ProductFilter from "../utils/productFilter";
-// Get all products => /api/v1/products
-const allProducts = async (req, res, next) => {
-  const productFilter = new ProductFilter(req.query);
+import Product from "../models/product.js";
+import ProductFilter from "../utils/productFilter.js";
 
-  const products = await Product.find();
+const allProducts = async (req, res, next) => {
+  const resultPerPage = 10;
+
+  const productFilter = new ProductFilter(Product.find(), req.query)
+    .search()
+    .filter()
+    .pagination(resultPerPage);
+
+  console.log(productFilter.query);
+
+  const products = await productFilter.query;
   res.status(201).json({
     success: true,
     product,
   });
 };
 
-// Get single product details => /api/v1/product/:id
 const detailProduct = async (req, res, next) => {
   const product = await Product.findById(req.params.id);
 
@@ -27,7 +33,6 @@ const detailProduct = async (req, res, next) => {
   });
 };
 
-// Create new product =>
 const createProduct = async (req, res, next) => {
   const product = await Product.create(req.body);
 
@@ -37,7 +42,6 @@ const createProduct = async (req, res, next) => {
   });
 };
 
-//delete product => /api/v1/admin/product/:id
 const deleteProduct = async (req, res, next) => {
   const product = await Product.findById(req.params.id);
 
@@ -54,7 +58,6 @@ const deleteProduct = async (req, res, next) => {
   });
 };
 
-// update product => /api/v1/admin/product/:id
 const updateProduct = async (req, res, next) => {
   const product = await Product.findById(req.params.id);
 
