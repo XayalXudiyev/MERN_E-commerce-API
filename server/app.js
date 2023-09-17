@@ -5,6 +5,7 @@ import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
 import db from "./config/db.js";
 import productRoutes from "./routes/product.js";
+import userRoutes from './routes/user.js'
 import { v2 as cloudinary } from "cloudinary";
 
 dotenv.config();
@@ -23,6 +24,8 @@ app.use(bodyParser.urlencoded({ limit: "30mb", extended: true }));
 app.use(cookieParser());
 
 app.use("/", productRoutes);
+app.use("/user", userRoutes);
+
 
 app.listen(process.env.PORT || 5000, () => {
   console.log("Server is running on port ${PORT}");
