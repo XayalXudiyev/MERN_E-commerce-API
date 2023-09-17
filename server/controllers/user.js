@@ -34,9 +34,43 @@ const register = async (req, res, next) => {
   });
 };
 
-const login = async (req, res, next) => {};
+const login = async (req, res, next) => {
+  const { email, password } = req.body;
+  const user = await User.findOne({ email });
+  if (!user) {
+    return res.status(500).json({ message: "Don't exist user" });
+  }
 
-const logout = async (req, res, next) => {};
+  const comparePassword = await bcrypt.compare(password, user.password);
+
+  if (!comparePassword) {
+    return res.status(500).json({ message: "Invalid password" });
+  }
+
+  const token = jwt.sign({ id: newuser._id }, process.env.SECRET_TOKEN, {
+    expiresIn: "1h",
+  });
+
+  const cookieOptions = {
+    httpOnly: true,
+    expires: new Date.now() + 10 * 24 * 60 * 60 * 1000,
+  };
+
+  res.status(200).cookie("token", token, cookieOptions).json({
+    user,
+    token,
+  });
+};
+
+const logout = async (req, res, next) => {
+  const cookieOptions = {
+    httpOnly: true,
+    expires: new Date.now()
+  };
+  res.status(200).cookie("token", null,cookieOptions).json({
+    message: "Logout successful",
+  });
+};
 
 const forgotPassword = async (req, res, next) => {};
 
