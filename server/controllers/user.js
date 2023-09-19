@@ -102,7 +102,7 @@ const forgotPassword = async (req, res, next) => {
     .createHash("sha256")
     .update(resetToken)
     .digest("hex");
-  user.resetPasswordExpire = new Date.now() + 30 * 60 * 1000;
+  user.resetPasswordExpire =  Date.now() + 30 * 60 * 1000;
 
   await user.save({ validateBeforeSave: false });
 
@@ -145,6 +145,42 @@ const forgotPassword = async (req, res, next) => {
   }
 };
 
-const resetPassword = async (req, res, next) => {};
+const resetPassword = async (req, res, next) => {
+  const resetPasswordToken = crypto.createHash("sha256").update(req.params.resetToken).digest("hex");
 
-export { login, logout, register, forgotPassword, resetPassword };
+  const user = await User.findOne({
+    resetPasswordToken,
+    resetPasswordExpire: { $gt: Date.now() }
+  });
+
+  if(!user){
+    return res.status(400).json({message: "Invalid token or expired"})
+  }
+
+  user.password = req.body.password;
+  user.resetPasswordToken = undefined; 
+  user.resetPasswordExpire = undefined;
+
+  await user.save();
+
+  const token = jwt.sign({ id: user._id }, process.env.SECRET_TOKEN, {  //token yaratmaq
+    expiresIn: "1h",
+  });
+
+  const cookieOptions = {
+    httpOnly: true,
+    expires: new Date.now() + 10 * 24 * 60 * 60 * 1000,
+  };
+
+  res.status(200).cookie("token", token, cookieOptions).json({
+    user,
+    token,
+  });
+};
+
+const userDetail = async(req, res, next) => {
+  const user = await User.findById(req.params.id);
+  res.status(200).json({ user});
+}
+
+export { login, logout, register, forgotPassword, resetPassword , userDetail};
