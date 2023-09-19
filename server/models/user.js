@@ -1,5 +1,5 @@
 import express from "express";
-import mongoose from "mongoose"
+import mongoose from "mongoose";
 
 const UserSchema = new mongoose.Schema(
   {
@@ -32,6 +32,8 @@ const UserSchema = new mongoose.Schema(
       default: "user",
       required: true,
     },
+    resetPasswordToken: String,
+    resetPasswordExpire: Date,
   },
   { timestamps: true }
 );
