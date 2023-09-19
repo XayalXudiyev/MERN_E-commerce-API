@@ -1,5 +1,5 @@
 import User from "../models/user.js";
-import { jwt } from "jsonwebtoken";
+import  jwt  from "jsonwebtoken";
 
 const authMid = async (req, res, next) => {
   const { token } = req.cookies;
@@ -16,4 +16,13 @@ const authMid = async (req, res, next) => {
   next();
 };
 
-export default { authMid };
+const roleChecked = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return res.status(403).json({ message: "Access denied" });
+    }
+    next();
+  };
+};
+
+export  { authMid, roleChecked };
